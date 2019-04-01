@@ -1,0 +1,31 @@
+---
+applications:
+  ## Angular Front End
+  - name: frontend
+    memory: 256M
+    path: frontend/dist/frontend
+    buildpacks:
+      - staticfile_buildpack
+    routes:
+     - route: adib-angular-ui.cfapps.io
+
+## Boot Backend
+  - name: backend
+    memory: 1GB
+    path: backend/target/backend-0.0.1-SNAPSHOT.jar
+    buildpacks:
+      - java_buildpack
+    routes:
+      - route: adib-boot-api.cfapps.io
+
+## Spring Cloud Gateway
+  - name: gateway
+    memory: 1GB
+    path: gateway/target/gateway-0.0.1-SNAPSHOT.jar
+    buildpacks:
+      - java_buildpack
+    routes:
+      - route: adib-angular-boot-demo.cfapps.io
+    env:
+     APP_ANGULAR: "http://adib-angular-ui.cfapps.io"
+     APP_API: "http://adib-boot-api.cfapps.io"

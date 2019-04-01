@@ -4,32 +4,78 @@ This repo shows how to setup a project to use SpringBoot for implementing an API
 and Angular for the frontend without affecting the workflow of the backend 
 springboot developer or the frontend angular developer. 
 
-The SpringBoot api is located in the `backend` directory which follows the standard
-springBoot / maven project structure and the `frontend` directory which contains
-a standard angular project created via the Angular CLI.  
+There are three projects in this repo
+* `backend` contains the SpringBoot backend api that will run on port `8080`
+* `frontend` contains the angular frontend that will run on port `4200` via `ng serve'
+* `gateway` spring cloud gateway running on port `7777` 
+
+There is no CORS configured between the Boot api and the Angular front end.
 
 The workflow is the following.
-* SpringBoot app runs on port 8080 and serves out the API 
-* Angular app runs via `ng serve` on port `4200`
-* SpringBoot app is configured to allow cross origin requests form `http://localhost:4200` which 
-means that in order to view the Web App just make a request to `http://localhost:4200`
+* Launch the SpringBoot api
+* Launch the angular front end via `ng serve`
+* Launch the gateway 
 
-In the `frontend` directory there is a `pom.xml` file that leverages the 
-maven frontend plugin. The frontend plugin does the following.
-* install node and npm locally into the `frontend/target/node' folder.
-* build the angular code into the standard `dist` folder 
-* package up the contents on `dist/frontend` into a jar file under the path `/static` 
-* spring boot backend code has a maven dependency on `frontend.jar` which means that 
-when `mvn package` is executed the SpringBoot backend contains all the complied 
-Angular code in the boot app and `http://localhost:8080` would serve out both the 
-compiled angular code and the boot based API. 
+Visit `http://localhost:7777` and you will be able to interact with the 
+angular app or the api. In development mode the `ng serve` uses a 
+web socket so that anytime the angular app changes the page in the browser
+is reloaded. Spring Cloud Gateway can proxy WebSockets there is no impact 
+to the Angular developer's workflow what works on port 42000 works the same
+on port 7777 
 
-The setup of this project makes it possible to allow the frontend developer who
-knows Angular but does not know spring boot to simple run the boot from the IDE
-while running `ng serve` from the command line and everything just works.
+## How it works.
+
+The gateway's `application.yml` has two settings `app.angular` that should have
+the url to the angular app and `app.api` that should have the url to 
+the SpringBoot backend. 
+
+`application.yml` settings shown below
+
+```yaml
+app:
+  angular: "http://localhost:4200"
+  api: "http://localhost:8080"
+```
+
+The code below shows how the gateway is configured we simply proxy anything starting 
+`/api` to the boot application which should have it's api's offered up under the `/api` path
+any other paths are sent to the angular application. 
+
+```java
+@Configuration
+public class GatewayConfigurer {
+
+    @Value("${app.angular}")
+    private String frontend = "";
+
+    @Value("${app.api}")
+    private String api = "";
+
+    @Bean
+    public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
+
+        if(frontend.isEmpty() || api.isEmpty()) {
+            throw new IllegalStateException("front end and backed urls not configured in application.yml");
+        }
+
+        return builder.routes()
+                .route("api", r -> r.path("/api/**").uri(api))
+                .route("angular", r -> r.path("/**").uri(frontend))
+                .build();
+    }
+}
+```
+
+Spring Cloud Gateway has many  features that are very powerful which we are not used in this demo. 
+Highly recommend watching [Living on the Edge with Spring Cloud Gateway](https://www.youtube.com/watch?v=jOawuL1Xnwo)
+to get an overview of the interesting ways that you can use Spring Cloud Gateway in your project.
+
+## Deploying to Cloud Foundry
+
+1. Run `./mvnw clean package` to build the backend / frontend and gateway
+2. edit the 'manifest.yml' to pick hostnames that are avilable on your Cloud Foundry Foundation  
 
 ## Issues 
 
-* There is no security setup between the Angular App and the SpringBoot Backend.
-
-* If you would like to gradle instead of maven checkout `https://ordina-jworks.github.io/architecture/2018/10/12/spring-boot-angular-gradle.html`
+* There is no security applied to the boot api or the front end. There is another repo that 
+demonstrates how to do this. 
