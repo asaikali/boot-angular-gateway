@@ -1,0 +1,1 @@
+this is a text file to test if the gateway can proxy to this file.

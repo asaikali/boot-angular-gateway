@@ -14,7 +14,7 @@ export class AppComponent {
   constructor(private httpClient: HttpClient){}
 
   greet(){
-    this.httpClient.get( "http://localhost:8080/api/hello").subscribe( (res : any) => {
+    this.httpClient.get( "/api/hello").subscribe( (res : any) => {
       console.log(res.message);
       this.message = res.message;
     });
