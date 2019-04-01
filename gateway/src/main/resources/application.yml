@@ -1,2 +1,7 @@
 server:
   port: 7777
+
+app:
+  angular: "http://localhost:4200"
+  api: "http://localhost:8080"
+
