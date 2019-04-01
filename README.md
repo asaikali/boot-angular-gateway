@@ -72,8 +72,45 @@ to get an overview of the interesting ways that you can use Spring Cloud Gateway
 
 ## Deploying to Cloud Foundry
 
+### apps.internal domain 
+
+Cloud Foundry offers a container-to-container network typically via the `apps.internal` domain 
+applications deployed with a route on `apps.internal` will not be accessible from outside of 
+Cloud Foundry they can only be called by other apps on Cloud Foundry.
+
+By default apps running on CF are not allowed to open outbound network connections to other apps
+and so to enable one app to call anther we will need a network policy to make that possible. 
+
+In our case we want the `gateway` to be able to call the `backend` and the `frontend` so we need
+to execute the following commands after we do a `cf push`
+
+```bash
+cf add-network-policy gateway --destination-app frontend --protocol tcp --port 8080
+cf add-network-policy gateway --destination-app backend --protocol tcp --port 8080
+``` 
+
+Calls on the internal container-to-container network do not do flow through the `gorouter`
+therefore the caller must do client side load balancing. For example if we `cf scale backend -i 2`
+then ssh into the `gateway` container and try and resolve the ip addresses of the backend 
+api we will get multiple A records as shown below.
+
+```text
+→ cf ssh gateway
+vcap@c7390b9a-b7d0-48a2-7f86-ffb2:~$ nslookup adib-boot-api.apps.internal
+Server:		169.254.0.2
+Address:	169.254.0.2#53
+
+Name:	adib-boot-api.apps.internal
+Address: 10.252.62.158
+Name:	adib-boot-api.apps.internal
+Address: 10.244.176.18
+```
+
+### deploying to Cloud Foundry 
+
 1. Run `./mvnw clean package` to build the backend / frontend and gateway
-2. edit the 'manifest.yml' to pick hostnames that are available on your Cloud Foundry Foundation  
+2. edit the 'manifest.yml' to pick hostnames that are available on your Cloud Foundry Foundation
+3. run `deploy.sh` script  
 
 ## Issues 
 

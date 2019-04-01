@@ -7,7 +7,7 @@ applications:
     buildpacks:
       - staticfile_buildpack
     routes:
-     - route: adib-angular-ui.cfapps.io
+     - route: adib-angular-ui.apps.internal
 
 ## Boot Backend
   - name: backend
@@ -16,7 +16,7 @@ applications:
     buildpacks:
       - java_buildpack
     routes:
-      - route: adib-boot-api.cfapps.io
+      - route: adib-boot-api.apps.internal
 
 ## Spring Cloud Gateway
   - name: gateway
@@ -27,5 +27,5 @@ applications:
     routes:
       - route: adib-angular-boot-demo.cfapps.io
     env:
-     APP_ANGULAR: "http://adib-angular-ui.cfapps.io"
-     APP_API: "http://adib-boot-api.cfapps.io"
+     APP_ANGULAR: "http://adib-angular-ui.apps.internal:8080"
+     APP_API: "http://adib-boot-api.apps.internal:8080"

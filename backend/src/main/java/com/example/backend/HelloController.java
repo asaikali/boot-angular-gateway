@@ -10,6 +10,9 @@ public class HelloController {
 
     @GetMapping("/api/hello")
     public Message get(){
-        return new Message("Hello the time is " +  new Date());
+
+
+        String instanceIndex = System.getenv("CF_INSTANCE_INDEX");
+        return new Message("Hello from instance '" + instanceIndex + "' the time is " +  new Date());
     }
 }
