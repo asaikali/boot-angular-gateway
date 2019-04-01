@@ -1,4 +1,4 @@
-# boot-angular-multi-module
+# boot-angular-gateway
 
 This repo shows how to setup a project to use SpringBoot for implementing an API 
 and Angular for the frontend without affecting the workflow of the backend 
@@ -20,8 +20,8 @@ Visit `http://localhost:7777` and you will be able to interact with the
 angular app or the api. In development mode the `ng serve` uses a 
 web socket so that anytime the angular app changes the page in the browser
 is reloaded. Spring Cloud Gateway can proxy WebSockets there is no impact 
-to the Angular developer's workflow what works on port 42000 works the same
-on port 7777 
+to the Angular developer's workflow what works on port `4200` works the same
+on port `7777` 
 
 ## How it works.
 
@@ -73,7 +73,7 @@ to get an overview of the interesting ways that you can use Spring Cloud Gateway
 ## Deploying to Cloud Foundry
 
 1. Run `./mvnw clean package` to build the backend / frontend and gateway
-2. edit the 'manifest.yml' to pick hostnames that are avilable on your Cloud Foundry Foundation  
+2. edit the 'manifest.yml' to pick hostnames that are available on your Cloud Foundry Foundation  
 
 ## Issues 
 
